@@ -11,6 +11,7 @@ export default function HomePage() {
   const [chromosomes,setChromosomes] = useState([]);
   const [selectedChromosome, setSelectedChromosome] = useState("chr1");
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
   const [mode,setMode] = useState("search");
   const [activeTab, setActiveTab] = useState(mode || "search");
 
@@ -20,6 +21,18 @@ export default function HomePage() {
 
   const switchMode=(newmode)=>{
     if(newmode === mode) return;
+
+    setSearchResults([]);
+    setError(null);
+
+    if (newmode === "browse" && selectedChromosome) {
+        performGeneSearch(
+            selectedChromosome,
+            selectedGenome,
+            (gene) => gene.chrom === selectedChromosome
+        );
+    }
+
     setMode(newmode);
   }
 
@@ -33,7 +46,7 @@ export default function HomePage() {
     if(e) e.preventDefault();
     if(!searchQuery.trim()) return;
 
-    //perform gene search
+    performGeneSearch(searchQuery, selectedGenome);
   }
 
   useEffect(() => {
@@ -71,6 +84,30 @@ export default function HomePage() {
     };
     fetchChromosomes();
   }, [selectedGenome]);
+
+  const performGeneSearch = async (query, genome, filterFn) => {
+    try {
+        setIsLoading(true);
+        const data = await searchGenes(queryObjects, genome);
+        const results = filterFn ? data.results.filter(filterFn) : data.results;
+        console.log(results);
+        setSearchResults(results);
+    } catch (err) {
+        setError("Failed to search genes");
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+      if (!selectedChromosome || mode !== "browse") return;
+      performGeneSearch(
+          selectedChromosome,
+          selectedGenome,
+          (gene) => gene.chrom === selectedChromosome
+      );
+  }, [selectedChromosome, selectedGenome, mode]);
+
 
   return (
     <div className="min-h-screen bg-gray-50">
