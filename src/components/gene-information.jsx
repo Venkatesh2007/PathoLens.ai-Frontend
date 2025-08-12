@@ -1,109 +1,96 @@
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { ExternalLink } from "lucide-react";
 
-export function GeneInformation({
-    gene,
-    geneDetail,
-    geneBounds,
-}) {
+export function GeneInformation({ gene, geneDetail, geneBounds }) {
     return (
-        <Card className="gap-0 border-none bg-white py-0 shadow-sm">
-            <CardHeader className="pt-4 pb-2">
-                <CardTitle className="text-sm font-normal text-[#3c4f3d]/70">
+        <Card className="gap-0 border border-blue-200 bg-white py-0 shadow-md hover:shadow-lg transition-shadow duration-300 rounded-lg">
+            <CardHeader className="pt-5 pb-3 border-b border-blue-100 bg-gradient-to-r from-blue-50 to-white rounded-t-lg">
+                <CardTitle className="text-base font-semibold text-blue-800 tracking-wide">
                     Gene Information
                 </CardTitle>
             </CardHeader>
-            <CardContent className="pb-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                        <div className="flex">
-                            <span className="min-28 w-28 text-xs text-[#3c4f3d]/70">
-                                Symbol:
-                            </span>
-                            <span className="text-xs">{gene.symbol}</span>
-                        </div>
-                        <div className="flex">
-                            <span className="min-28 w-28 text-xs text-[#3c4f3d]/70">
-                                Name:
-                            </span>
-                            <span className="text-xs">{gene.name}</span>
-                        </div>
+
+            <CardContent className="pb-6 px-6">
+                <div className="grid gap-6 md:grid-cols-2">
+                    {/* Left Column */}
+                    <div className="space-y-4">
+                        <InfoRow label="Symbol:" value={gene.symbol} />
+                        <InfoRow label="Name:" value={gene.name} />
                         {gene.description && gene.description !== gene.name && (
-                            <div className="flex">
-                                <span className="min-28 w-28 text-xs text-[#3c4f3d]/70">
-                                    Description:
-                                </span>
-                                <span className="text-xs">{gene.description}</span>
-                            </div>
+                            <InfoRow label="Description:" value={gene.description} />
                         )}
-                        <div className="flex">
-                            <span className="min-28 w-28 text-xs text-[#3c4f3d]/70">
-                                Chromosome:
-                            </span>
-                            <span className="text-xs">{gene.chrom}</span>
-                        </div>
+                        <InfoRow label="Chromosome:" value={gene.chrom} />
                         {geneBounds && (
-                            <div className="flex">
-                                <span className="min-28 w-28 text-xs text-[#3c4f3d]/70">
-                                    Position:
-                                </span>
-                                <span className="text-xs">
-                                    {Math.min(geneBounds.min, geneBounds.max).toLocaleString()} -{" "}
-                                    {Math.max(geneBounds.min, geneBounds.max).toLocaleString()} (
-                                    {Math.abs(
-                                        geneBounds.max - geneBounds.min + 1,
-                                    ).toLocaleString()}{" "}
-                                    bp)
-                                    {geneDetail?.genomicinfo?.[0]?.strand === "-" &&
-                                        " (reverse strand)"}
-                                </span>
-                            </div>
+                            <InfoRow
+                                label="Position:"
+                                value={
+                                    <>
+                                        {Math.min(geneBounds.min, geneBounds.max).toLocaleString()} -{" "}
+                                        {Math.max(geneBounds.min, geneBounds.max).toLocaleString()} (
+                                        {Math.abs(geneBounds.max - geneBounds.min + 1).toLocaleString()} bp)
+                                        {geneDetail?.genomicinfo?.[0]?.strand === "-" && (
+                                            <span className="italic text-sm text-blue-600 ml-1">
+                                                (reverse strand)
+                                            </span>
+                                        )}
+                                    </>
+                                }
+                            />
                         )}
                     </div>
-                    <div className="space-y-2">
+
+                    {/* Right Column */}
+                    <div className="space-y-4">
                         {gene.gene_id && (
-                            <div className="flex">
-                                <span className="min-28 w-28 text-xs text-[#3c4f3d]/70">
-                                    Gene ID:
-                                </span>
-                                <span className="text-xs">
-                                    <a
-                                        href={`https://www.ncbi.nlm.nih.gov/gene/${gene.gene_id}`}
-                                        target="_blank"
-                                        className="flex items-center text-blue-600 hover:underline"
-                                    >
-                                        {gene.gene_id}
-                                        <ExternalLink className="ml-1 inline-block h-3 w-3" />
-                                    </a>
-                                </span>
-                            </div>
-                        )}
-                        {geneDetail?.organism && (
-                            <div className="flex">
-                                <span className="w-28 text-xs text-[#3c4f3d]/70">
-                                    Organism:
-                                </span>
-                                <span className="text-xs">
-                                    {geneDetail.organism.scientificname}{" "}
-                                    {geneDetail.organism.commonname &&
-                                        ` (${geneDetail.organism.commonname})`}
-                                </span>
+                            <div className="flex items-center gap-2">
+                                <span className="w-28 text-xs font-medium text-blue-600">Gene ID:</span>
+                                <a
+                                    href={`https://www.ncbi.nlm.nih.gov/gene/${gene.gene_id}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1 text-blue-700 font-medium hover:underline"
+                                >
+                                    {gene.gene_id}
+                                    <ExternalLink className="h-4 w-4" />
+                                </a>
                             </div>
                         )}
 
+                        {geneDetail?.organism && (
+                            <InfoRow
+                                label="Organism:"
+                                value={
+                                    <>
+                                        {geneDetail.organism.scientificname}{" "}
+                                        {geneDetail.organism.commonname && (
+                                            <span className="text-blue-600 font-semibold">
+                                                ({geneDetail.organism.commonname})
+                                            </span>
+                                        )}
+                                    </>
+                                }
+                            />
+                        )}
+
                         {geneDetail?.summary && (
-                            <div className="mt-4">
-                                <h3 className="mb-2 text-xs font-medium text-[#3c4f3d]">
-                                    Summary:
-                                </h3>
-                                <p className="text-xs leading-relaxed text-[#3c4f3d]/80">
-                                    {geneDetail.summary}
-                                </p>
+                            <div className="mt-4 rounded-md bg-blue-50 p-4 text-sm text-blue-900 leading-relaxed shadow-inner">
+                                <h3 className="mb-2 font-semibold tracking-wide">Summary:</h3>
+                                <p>{geneDetail.summary}</p>
                             </div>
                         )}
                     </div>
                 </div>
             </CardContent>
         </Card>
+    );
+}
+
+// Helper component for label + value pairs
+function InfoRow({ label, value }) {
+    return (
+        <div className="flex items-start gap-2">
+            <span className="w-28 min-w-[7rem] text-xs font-semibold text-blue-700">{label}</span>
+            <span className="text-xs text-blue-900">{value}</span>
+        </div>
     );
 }
