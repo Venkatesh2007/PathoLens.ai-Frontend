@@ -81,7 +81,7 @@ export default function HomePage() {
         setIsLoading(true);
         const data = await getGenomeChromosomes(selectedGenome);
         setChromosomes(data.chromosomes)
-        console.log(data.chromosomes)
+        // console.log(data.chromosomes)
         if (data.chromosomes.length>0) {
           setSelectedChromosome(data.chromosomes[0].name)
         }
