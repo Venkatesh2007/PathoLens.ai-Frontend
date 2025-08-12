@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { getAvailableGenomes , getGenomeChromosomes } from "../utils/genome-api";
+import { getAvailableGenomes , getGenomeChromosomes , searchGenes } from "../utils/genome-api";
 import { Search } from "lucide-react";
+import GeneViewer from "../components/gene-viewer";
 
 
 export default function HomePage() {
@@ -11,15 +12,35 @@ export default function HomePage() {
   const [chromosomes,setChromosomes] = useState([]);
   const [selectedChromosome, setSelectedChromosome] = useState("chr1");
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
   const [mode,setMode] = useState("search");
   const [activeTab, setActiveTab] = useState(mode || "search");
+  const [selectedGene,setSelectedGene] =useState(null);
 
   const handleGenomeChange = (e) => {
     setSelectedGenome(e.target.value);
+    //reseting the search results after the genome assembly changed
+    setSearchResults([]);
+    setSelectedGene(null)
   };
 
   const switchMode=(newmode)=>{
     if(newmode === mode) return;
+
+    setSearchResults([]);
+    //clearing the errors when the user switches to other tab
+
+    setSelectedGene(null)
+    setError(null);
+
+    if (newmode === "browse" && selectedChromosome) {
+        performGeneSearch(
+            selectedChromosome,
+            selectedGenome,
+            (gene) => gene.chrom === selectedChromosome
+        );
+    }
+
     setMode(newmode);
   }
 
@@ -27,13 +48,14 @@ export default function HomePage() {
     setMode("search");
     setSearchQuery("BRCA1");
     //handling the actual searching
+    //and when the user click on the braca directly perform the search functionality
+    performGeneSearch("BRCA1",selectedGenome);
   }
 
   const handleSearch = async (e) =>{
     if(e) e.preventDefault();
     if(!searchQuery.trim()) return;
-
-    //perform gene search
+    performGeneSearch(searchQuery, selectedGenome);
   }
 
   useEffect(() => {
@@ -72,6 +94,30 @@ export default function HomePage() {
     fetchChromosomes();
   }, [selectedGenome]);
 
+  const performGeneSearch = async (query, genome, filterFn) => {
+    try {
+        setIsLoading(true);
+        const data = await searchGenes(query, genome);
+        const results = filterFn ? data.results.filter(filterFn) : data.results;
+        console.log(results);
+        setSearchResults(results);
+    } catch (err) {
+        setError("Failed to search genes");
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+      if (!selectedChromosome || mode !== "browse") return;
+      performGeneSearch(
+          selectedChromosome,
+          selectedGenome,
+          (gene) => gene.chrom === selectedChromosome
+      );
+  }, [selectedChromosome, selectedGenome, mode]);
+
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -91,7 +137,15 @@ export default function HomePage() {
 
       {/* Main */}
       <main className="container mx-auto px-6 py-8">
-        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow duration-200">
+        {selectedGene ? 
+        <GeneViewer
+            gene={selectedGene}
+            genomeId={selectedGenome}
+            onClose={() => setSelectedGene(null)}
+          /> : 
+
+        <>
+          <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow duration-200">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-semibold text-gray-800">
               Genome Assembly
@@ -244,10 +298,88 @@ export default function HomePage() {
             {error}
           </div>
         )}
+
+            {searchResults.length > 0 && !isLoading && (
+            <div className="mt-6">
+              {/* Header */}
+              <div className="mb-2">
+                <h4 className="text-xs font-normal text-[#3c4f3d]/70">
+                  {mode === "search" ? (
+                    <>
+                      Search Results:{" "}
+                      <span className="font-medium text-[#3c4f3d]">
+                        {searchResults.length} genes
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      Genes on {selectedChromosome}:{" "}
+                      <span className="font-medium text-[#3c4f3d]">
+                        {searchResults.length} found
+                      </span>
+                    </>
+                  )}
+                </h4>
+              </div>
+
+              {/* Table */}
+              <div className="overflow-hidden rounded-md border border-[#3c4f3d]/5 shadow-sm">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-[#e9eeea]/50">
+                      <th className="px-4 py-2 text-left text-xs font-normal text-[#3c4f3d]/70">
+                        Symbol
+                      </th>
+                      <th className="px-4 py-2 text-left text-xs font-normal text-[#3c4f3d]/70">
+                        Name
+                      </th>
+                      <th className="px-4 py-2 text-left text-xs font-normal text-[#3c4f3d]/70">
+                        Location
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {searchResults.map((gene, index) => (
+                      <tr
+                        key={`${gene.symbol}-${index}`}
+                        className="cursor-pointer border-b border-[#3c4f3d]/5 transition-colors hover:bg-[#e9eeea]/50"
+                        onClick={() => setSelectedGene(gene)}
+                      >
+                        <td className="px-4 py-2 font-medium text-[#3c4f3d]">
+                          {gene.symbol}
+                        </td>
+                        <td className="px-4 py-2 font-medium text-[#3c4f3d]">
+                          {gene.name}
+                        </td>
+                        <td className="px-4 py-2 font-medium text-[#3c4f3d]">
+                          {gene.chrom}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!isLoading && !error && searchResults.length === 0 && (
+            <div className="flex h-48 flex-col items-center justify-center text-center text-gray-400">
+              <Search className="mb-4 h-10 w-10 text-gray-400" />
+              <p className="text-sm leading-relaxed">
+                {mode === "search"
+                  ? "Enter a gene or symbol and click search"
+                  : selectedChromosome
+                  ? "No genes found on this chromosome"
+                  : "Select a chromosome to view genes"}
+              </p>
+            </div>
+          )}
       </div>
     </div>
-
-
+   </>
+  }
+        
       </main>
     </div>
   );

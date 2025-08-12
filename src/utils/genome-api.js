@@ -116,3 +116,60 @@ export async function getGenomeChromosomes(genomeId) {
   // Return the sorted chromosomes in an object
   return { chromosomes };
 }
+
+export async function searchGenes(query, genome) {
+    // URL to fetch genes from NCBI
+    const url = "https://clinicaltables.nlm.nih.gov/api/ncbi_genes/v3/search";
+
+    // Adding params to the URL
+    const params = new URLSearchParams({
+        terms: query,
+        df: "chromosome,symbol,description,map_location,type_of_gene",
+        ef: "chromosome,symbol,description,map_location,type_of_gene,GenomicInfo,GeneID",
+    });
+
+    // Complete URL by combining both URL and params
+    const response = await fetch(`${url}?${params}`);
+
+    // Throws error if failed to fetch data from the API
+    if (!response.ok) {
+        throw new Error("NCBI API Error");
+    }
+
+    // Data contains the related gene by giving the ?terms=value
+    const data = await response.json();
+
+    // Results array
+    const results = [];
+
+    if (data[0] > 0) {
+        // Contains null or values at index 2, in that value it contains GeneID
+        const fieldMap = data[2];
+        const geneIds = fieldMap.GeneId || [];
+
+        // We will fetch max 10 or complete data present in the data[]
+        for (let i = 0; i < Math.min(10, data[0]); ++i) {
+            // Safety check to avoid out-of-bounds
+            if (i < data[3].length) {
+                try {
+                    const display = data[3][i];
+                    let chrom = display[0];
+                    if (chrom && !chrom.startsWith("chr")) {
+                        chrom = `chr${chrom}`;
+                    }
+                    results.push({
+                        symbol: display[2],
+                        name: display[3],
+                        chrom: chrom,
+                        description: display[3],
+                        gene_id: geneIds[i] || "",
+                    });
+                } catch {
+                    continue;
+                }
+            }
+        }
+    }
+
+    return { query, genome, results };
+}
