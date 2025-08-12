@@ -173,3 +173,40 @@ export async function searchGenes(query, genome) {
 
     return { query, genome, results };
 }
+
+export async function fetchGeneDetails(geneId) {
+    try {
+        const detailurl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id=${geneId}&retmode=json`;
+        const detailsResponse = await fetch(detailurl);
+
+        if (!detailsResponse.ok) {
+            console.error(`Failed to fetch gene details: ${detailsResponse.statusText}`);
+            return { geneDetails: null, geneBounds: null, initalRange: null };
+        }
+
+        const detailData = await detailsResponse.json();
+
+        if (detailData.result && detailData.result[geneId]) {
+            const detail = detailData.result[geneId];
+
+            if (detail.genomicinfo && detail.genomicinfo.length > 0) {
+                const info = detail.genomicinfo[0];
+
+                const minPos = Math.min(info.chrstart, info.chrstop);
+                const maxPos = Math.max(info.chrstart, info.chrstop);
+                const bounds = { min: minPos, max: maxPos };
+
+                const genesize = maxPos - minPos;
+                const seqstart = minPos;
+                const seqEnd = genesize > 10000 ? minPos + 10000 : maxPos;
+                const range = { start: seqstart, end: seqEnd };
+
+                return { geneDetails: detail, geneBounds: bounds, initalRange: range };
+            }
+        }
+
+        return { geneDetails: null, geneBounds: null, initalRange: null };
+    } catch (err) {
+        return { geneDetails: null, geneBounds: null, initalRange: null };
+    }
+}
