@@ -246,7 +246,7 @@ const TypewriterText = ({ text, delay = 0, speed = 50 }) => {
 };
 
 // Main Component
-const Homepage = () => {
+const LandingPage = () => {
     const [currentStage, setCurrentStage] = useState(0);
     const [scrollProgress, setScrollProgress] = useState(0);
     const containerRef = useRef();
@@ -478,4 +478,4 @@ const Homepage = () => {
     );
 };
 
-export default Homepage;
+export default LandingPage;
