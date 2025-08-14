@@ -5,12 +5,13 @@ import React, {
     useRef,
     useCallback,
 } from "react";
+import * as RadixSlider from "@radix-ui/react-slider";
 import {
     Card,
     CardContent,
     CardHeader,
     CardTitle,
-} from "./ui/card"; 
+} from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { getNucleotideColorClass } from "../utils/coloring-utils";
@@ -30,11 +31,7 @@ export function GeneSequence({
     onSequenceClick,
     maxViewRange,
 }) {
-    const [sliderValues, setSliderValues] = useState({ start: 60, end: 70 });
-    const [isDraggingStart, setIsDraggingStart] = useState(false);
-    const [isDraggingEnd, setIsDraggingEnd] = useState(false);
-    const [isDraggingRange, setIsDraggingRange] = useState(false);
-    const sliderRef = useRef(null);
+    const [sliderValues, setSliderValues] = useState([60, 70]); // now array for Radix
     const dragStartX = useRef(null);
     const [hoverPosition, setHoverPosition] = useState(null);
     const [mousePosition, setMousePosition] = useState(null);
@@ -56,133 +53,54 @@ export function GeneSequence({
         const endNum = parseInt(endPosition);
 
         if (isNaN(startNum) || isNaN(endNum) || totalSize <= 0) {
-            setSliderValues({ start: 0, end: 100 });
+            setSliderValues([0, 100]);
             return;
         }
 
         const startPercent = ((startNum - minBound) / totalSize) * 100;
         const endPercent = ((endNum - minBound) / totalSize) * 100;
 
-        setSliderValues({
-            start: Math.max(0, Math.min(startPercent, 100)),
-            end: Math.max(0, Math.min(endPercent, 100)),
-        });
+        setSliderValues([
+            Math.max(0, Math.min(startPercent, 100)),
+            Math.max(0, Math.min(endPercent, 100)),
+        ]);
     }, [startPosition, endPosition, geneBounds]);
 
-    useEffect(() => {
-        function handleMouseMove(e) {
-            if (!isDraggingStart && !isDraggingEnd && !isDraggingRange) return;
-            if (!sliderRef.current || !geneBounds) return;
+    // Handle slider value change
+    const handleSliderChange = useCallback(
+        (values) => {
+            setSliderValues(values);
 
-            const sliderRect = sliderRef.current.getBoundingClientRect();
-            const relativeX = e.clientX - sliderRect.left;
-            const sliderWidth = sliderRect.width;
-            let newPercent = (relativeX / sliderWidth) * 100;
-            newPercent = Math.max(0, Math.min(newPercent, 100));
-
+            if (!geneBounds) return;
             const minBound = Math.min(geneBounds.min, geneBounds.max);
             const maxBound = Math.max(geneBounds.min, geneBounds.max);
             const geneSize = maxBound - minBound;
 
-            const newPosition = Math.round(minBound + (geneSize * newPercent) / 100);
-            const currentStartNum = parseInt(startPosition);
-            const currentEndNum = parseInt(endPosition);
+            const newStart = Math.round(minBound + (geneSize * values[0]) / 100);
+            const newEnd = Math.round(minBound + (geneSize * values[1]) / 100);
 
-            if (isDraggingStart) {
-                if (!isNaN(currentEndNum)) {
-                    if (currentEndNum - newPosition + 1 > maxViewRange) {
-                        onStartPositionChange(String(currentEndNum - maxViewRange + 1));
-                    } else if (newPosition < currentEndNum) {
-                        onStartPositionChange(String(newPosition));
-                    }
+            // Enforce max view range
+            if (newEnd - newStart + 1 > maxViewRange) {
+                if (newStart !== parseInt(startPosition)) {
+                    onStartPositionChange(String(newEnd - maxViewRange + 1));
                 }
-            } else if (isDraggingEnd) {
-                if (!isNaN(currentStartNum)) {
-                    if (newPosition - currentStartNum + 1 > maxViewRange) {
-                        onEndPositionChange(String(currentStartNum + maxViewRange - 1));
-                    } else if (newPosition > currentStartNum) {
-                        onEndPositionChange(String(newPosition));
-                    }
+                if (newEnd !== parseInt(endPosition)) {
+                    onEndPositionChange(String(newStart + maxViewRange - 1));
                 }
-            } else if (isDraggingRange) {
-                if (!dragStartX.current) return;
-                const pixelsPerBase = sliderWidth / geneSize;
-                const dragDeltaPixels = relativeX - dragStartX.current.x;
-                const dragDeltaBases = Math.round(dragDeltaPixels / pixelsPerBase);
-
-                let newStart = dragStartX.current.startPos + dragDeltaBases;
-                let newEnd = dragStartX.current.endPos + dragDeltaBases;
-                const rangeSize = dragStartX.current.endPos - dragStartX.current.startPos;
-
-                if (newStart < minBound) {
-                    newStart = minBound;
-                    newEnd = minBound + rangeSize;
-                }
-                if (newEnd > maxBound) {
-                    newEnd = maxBound;
-                    newStart = maxBound - rangeSize;
-                }
-
+            } else {
                 onStartPositionChange(String(newStart));
                 onEndPositionChange(String(newEnd));
             }
-        }
-
-        function handleMouseUp() {
-            if ((isDraggingStart || isDraggingEnd || isDraggingRange) && startPosition && endPosition) {
-                onSequenceLoadRequest();
-            }
-            setIsDraggingStart(false);
-            setIsDraggingEnd(false);
-            setIsDraggingRange(false);
-            dragStartX.current = null;
-        }
-
-        window.addEventListener("mousemove", handleMouseMove);
-        window.addEventListener("mouseup", handleMouseUp);
-        return () => {
-            window.removeEventListener("mousemove", handleMouseMove);
-            window.removeEventListener("mouseup", handleMouseUp);
-        };
-    }, [
-        isDraggingStart,
-        isDraggingEnd,
-        isDraggingRange,
-        geneBounds,
-        startPosition,
-        endPosition,
-        onStartPositionChange,
-        onEndPositionChange,
-        maxViewRange,
-        onSequenceLoadRequest,
-    ]);
-
-    const handleMouseDown = useCallback((e, handle) => {
-        e.preventDefault();
-        if (handle === "start") setIsDraggingStart(true);
-        else setIsDraggingEnd(true);
-    }, []);
-
-    const handleRangeMouseDown = useCallback(
-        (e) => {
-            e.preventDefault();
-            if (!sliderRef.current) return;
-
-            const startNum = parseInt(startPosition);
-            const endNum = parseInt(endPosition);
-            if (isNaN(startNum) || isNaN(endNum)) return;
-
-            setIsDraggingRange(true);
-            const sliderRect = sliderRef.current.getBoundingClientRect();
-            const relativeX = e.clientX - sliderRect.left;
-            dragStartX.current = {
-                x: relativeX,
-                startPos: startNum,
-                endPos: endNum,
-            };
         },
-        [startPosition, endPosition]
+        [geneBounds, maxViewRange, onStartPositionChange, onEndPositionChange, startPosition, endPosition]
     );
+
+    // Load sequence after finishing drag
+    const handleSliderCommit = useCallback(() => {
+        if (startPosition && endPosition) {
+            onSequenceLoadRequest();
+        }
+    }, [startPosition, endPosition, onSequenceLoadRequest]);
 
     const formattedSequence = useMemo(() => {
         if (!sequenceData || !sequenceRange) return null;
@@ -243,52 +161,34 @@ export function GeneSequence({
                 {geneBounds && (
                     <div className="mb-6 flex flex-col">
                         <div className="mb-3 flex flex-col items-center justify-between text-xs font-mono text-blue-700 sm:flex-row">
-                            <span className="flex items-center gap-1">
-                                <p className="sm:hidden font-semibold">From:</p>
-                                <p>{Math.min(geneBounds.min, geneBounds.max).toLocaleString()}</p>
+                            <span>
+                                {Math.min(geneBounds.min, geneBounds.max).toLocaleString()}
                             </span>
                             <span className="font-semibold">
                                 Selected: {parseInt(startPosition || "0").toLocaleString()} -{" "}
                                 {parseInt(endPosition || "0").toLocaleString()} ({currentRangeSize.toLocaleString()} bp)
                             </span>
-                            <span className="flex items-center gap-1">
-                                <p className="sm:hidden font-semibold">To:</p>
-                                <p>{Math.max(geneBounds.min, geneBounds.max).toLocaleString()}</p>
+                            <span>
+                                {Math.max(geneBounds.min, geneBounds.max).toLocaleString()}
                             </span>
                         </div>
 
-                        {/* Slider */}
-                        <div className="relative h-6 w-full cursor-pointer select-none">
-                            <div className="absolute top-1/2 h-2 w-full -translate-y-1/2 rounded-full bg-blue-100"></div>
-
-                            <div
-                                ref={sliderRef}
-                                className="absolute top-1/2 h-2 -translate-y-1/2 cursor-grab rounded-full bg-blue-600 active:cursor-grabbing"
-                                style={{
-                                    left: `${sliderValues.start}%`,
-                                    width: `${sliderValues.end - sliderValues.start}%`,
-                                }}
-                                onMouseDown={handleRangeMouseDown}
-                            ></div>
-
-                            {/* Start handle */}
-                            <div
-                                className="absolute top-1/2 flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 cursor-grab items-center justify-center rounded-full border-2 border-blue-700 bg-white shadow-md active:cursor-grabbing"
-                                style={{ left: `${sliderValues.start}%` }}
-                                onMouseDown={(e) => handleMouseDown(e, "start")}
-                            >
-                                <div className="h-3 w-1 rounded-full bg-blue-700"></div>
-                            </div>
-
-                            {/* End handle */}
-                            <div
-                                className="absolute top-1/2 flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 cursor-grab items-center justify-center rounded-full border-2 border-blue-700 bg-white shadow-md active:cursor-grabbing"
-                                style={{ left: `${sliderValues.end}%` }}
-                                onMouseDown={(e) => handleMouseDown(e, "end")}
-                            >
-                                <div className="h-3 w-1 rounded-full bg-blue-700"></div>
-                            </div>
-                        </div>
+                        {/* Smooth Slider */}
+                        <RadixSlider.Root
+                            className="relative flex items-center select-none touch-none w-full h-6"
+                            value={sliderValues}
+                            min={0}
+                            max={100}
+                            step={0.1}
+                            onValueChange={handleSliderChange}
+                            onValueCommit={handleSliderCommit}
+                        >
+                            <RadixSlider.Track className="bg-blue-100 relative grow rounded-full h-2">
+                                <RadixSlider.Range className="absolute bg-blue-600 rounded-full h-full" />
+                            </RadixSlider.Track>
+                            <RadixSlider.Thumb className="block w-5 h-5 bg-white border-2 border-blue-700 rounded-full shadow-md hover:scale-110 transition-transform" />
+                            <RadixSlider.Thumb className="block w-5 h-5 bg-white border-2 border-blue-700 rounded-full shadow-md hover:scale-110 transition-transform" />
+                        </RadixSlider.Root>
 
                         {/* Position controls */}
                         <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -300,7 +200,7 @@ export function GeneSequence({
                                     type="text"
                                     inputMode="numeric"
                                     pattern="[0-9]*"
-                                    className="h-8 w-28 border border-blue-300 text-sm text-blue-700 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                                    className="h-8 w-28 border border-blue-300 text-sm text-blue-700 rounded-md"
                                 />
                             </div>
 
@@ -308,7 +208,7 @@ export function GeneSequence({
                                 size="sm"
                                 disabled={isLoading}
                                 onClick={onSequenceLoadRequest}
-                                className="h-8 w-full sm:w-auto bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition"
+                                className="h-8 w-full sm:w-auto bg-blue-600 text-white rounded-md hover:bg-blue-700"
                             >
                                 {isLoading ? "Loading..." : "Load sequence"}
                             </Button>
@@ -321,7 +221,7 @@ export function GeneSequence({
                                     type="text"
                                     inputMode="numeric"
                                     pattern="[0-9]*"
-                                    className="h-8 w-28 border border-blue-300 text-sm text-blue-700 rounded-md focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                                    className="h-8 w-28 border border-blue-300 text-sm text-blue-700 rounded-md"
                                 />
                             </div>
                         </div>
