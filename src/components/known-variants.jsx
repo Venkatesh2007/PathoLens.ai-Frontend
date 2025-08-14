@@ -74,8 +74,7 @@ export default function KnownVariants({
                 chromosome: gene.chrom,
             });
             console.log("API returned data:", data);
-
-
+            
             const updatedVariant = {
                 ...variant,
                 isAnalyzing: false,

@@ -245,7 +245,6 @@ export default function GeneViewer({ gene, genomeId, onClose }) {
         comparisonVariant={comparisonVariant}
         onClose={() => setComparisonVariant(null)}
       />
-
     </div>
   );
 }
