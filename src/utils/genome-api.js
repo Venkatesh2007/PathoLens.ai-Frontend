@@ -329,3 +329,29 @@ export async function fetchClinvarVariants(chrom, geneBound, genomeId,) {
 
   return variants;
 }
+
+
+export async function analyzeVariantWithAPI({
+  position,
+  alternative,
+  genomeId,
+  chromosome,
+}) {
+  const queryParams = new URLSearchParams({
+    variant_position: position.toString(),
+    alternative: alternative,
+    genome: genomeId,
+    chromosome: chromosome,
+  });
+
+  const url = `${env.NEXT_PUBLIC_ANALYZE_SINGLE_VARIANT_BASE_URL}?${queryParams.toString()}`;
+
+  const response = await fetch(url, { method: "POST" });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error("Failed to analyze variant " + errorText);
+  }
+
+  return await response.json();
+}

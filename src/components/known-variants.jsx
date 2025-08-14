@@ -1,5 +1,3 @@
-"use client";
-
 import {
     analyzeVariantWithAPI,
 } from "../utils/genome-api";
@@ -21,7 +19,7 @@ import {
     Shield,
     Zap,
 } from "lucide-react";
-import { getClassificationColorClasses } from "~/utils/coloring-utils";
+import { getClassificationColorClasses } from "../utils/coloring-utils";
 
 export default function KnownVariants({
     refreshVariants,

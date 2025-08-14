@@ -8,6 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GeneInformation } from "./gene-information";
 import { GeneSequence } from "./gene-sequence";
+import KnownVariants from "./known-variants";
 
 export default function GeneViewer({ gene, genomeId, onClose }) {
   const [geneSequence, setGeneSequence] = useState("");
@@ -194,6 +195,16 @@ export default function GeneViewer({ gene, genomeId, onClose }) {
         Back to results
       </Button>
 
+      <KnownVariants
+        refreshVariants={fetchClinvarVariants}
+        showComparison={showComparison}
+        updateClinvarVariant={updateClinvarVariant}
+        clinvarVariants={clinvarVariants}
+        isLoadingClinvar={isLoadingClinvar}
+        clinvarError={clinvarError}
+        genomeId={genomeId}
+        gene={gene}
+      />
 
       <GeneSequence
         geneBounds={geneBounds}
