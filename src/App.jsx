@@ -4,16 +4,15 @@ import HomePage from "./pages/home";
 
 export default function App() {
 
-  const [loading, setLoading] = useState(true);
+  const [loaded, setLoaded] = useState(false);
 
-  if (loading) {
-    return <SplashScreen finishLoading={() => setLoading(false)} />;
-  }
 
 
   return (
     <>
-    <HomePage />
+          {!loaded && <SplashScreen onFinish={() => setLoaded(true)} />}
+
+   {loaded &&  <HomePage />}
     </>
   );
 }
