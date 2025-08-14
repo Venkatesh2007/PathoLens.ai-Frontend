@@ -32,6 +32,7 @@ export default function KnownVariants({
     gene,
 }) {
     const analyzeVariant = async (variant) => {
+        console.log("hi")
         let variantDetails = null;
         const position = variant.location
             ? parseInt(variant.location.replaceAll(",", ""))
@@ -53,7 +54,11 @@ export default function KnownVariants({
             !variantDetails.reference ||
             !variantDetails.alternative
         ) {
+            {
+            console.warn("Variant details missing", variantDetails);
             return;
+        }
+
         }
 
         updateClinvarVariant(variant.clinvar_id, {
@@ -68,6 +73,8 @@ export default function KnownVariants({
                 genomeId: genomeId,
                 chromosome: gene.chrom,
             });
+            console.log("API returned data:", data);
+
 
             const updatedVariant = {
                 ...variant,

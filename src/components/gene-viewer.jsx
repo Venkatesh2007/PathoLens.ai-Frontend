@@ -9,6 +9,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { GeneInformation } from "./gene-information";
 import { GeneSequence } from "./gene-sequence";
 import KnownVariants from "./known-variants";
+import VariantComparisonModal from "./variant-comparison-modal";
+import VariantAnalysis from "./variant-analysis";
 
 export default function GeneViewer({ gene, genomeId, onClose }) {
   const [geneSequence, setGeneSequence] = useState("");
@@ -30,6 +32,9 @@ export default function GeneViewer({ gene, genomeId, onClose }) {
 
   const [activeSequencePosition, setActiveSequencePosition] = useState(null);
   const [activeReferenceNucleotide, setActiveReferenceNucleotide] = useState(null);
+
+  const [comparisonVariant, setComparisonVariant] = useState(null);
+
 
   const variantAnalysisRef = useRef(null);
 
@@ -195,6 +200,18 @@ export default function GeneViewer({ gene, genomeId, onClose }) {
         Back to results
       </Button>
 
+      <VariantAnalysis
+        ref={variantAnalysisRef}
+        gene={gene}
+        genomeId={genomeId}
+        chromosome={gene.chrom}
+        clinvarVariants={clinvarVariants}
+        referenceSequence={activeReferenceNucleotide}
+        sequencePosition={activeSequencePosition}
+        geneBounds={geneBounds}
+      />
+
+
       <KnownVariants
         refreshVariants={fetchClinvarVariants}
         showComparison={showComparison}
@@ -223,6 +240,11 @@ export default function GeneViewer({ gene, genomeId, onClose }) {
       />
 
       <GeneInformation gene={gene} geneDetail={geneDetail} geneBounds={geneBounds} />
+
+      <VariantComparisonModal
+        comparisonVariant={comparisonVariant}
+        onClose={() => setComparisonVariant(null)}
+      />
 
     </div>
   );

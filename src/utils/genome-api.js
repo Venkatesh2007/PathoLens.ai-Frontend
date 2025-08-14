@@ -344,7 +344,7 @@ export async function analyzeVariantWithAPI({
     chromosome: chromosome,
   });
 
-  const url = `${env.NEXT_PUBLIC_ANALYZE_SINGLE_VARIANT_BASE_URL}?${queryParams.toString()}`;
+  const url = `${}?${queryParams.toString()}`;
 
   const response = await fetch(url, { method: "POST" });
 
