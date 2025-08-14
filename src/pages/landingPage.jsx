@@ -4,6 +4,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Text, Stars, Sparkles, useGLTF, Environment, Float, MeshDistortMaterial } from '@react-three/drei';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Link } from "react-router-dom";
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
@@ -366,9 +367,12 @@ const LandingPage = () => {
                                 />
                             </div>
                         </div>
-                        <button className="cta-button px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full text-lg font-semibold hover:shadow-2xl hover:shadow-cyan-500/50 transition-all duration-300 transform hover:scale-105">
-                            Begin Journey
-                        </button>
+                        <Link to="/home">
+
+                            <button className="cta-button px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full text-lg font-semibold hover:shadow-2xl hover:shadow-cyan-500/50 transition-all duration-300 transform hover:scale-105">
+                                Begin Journey
+                            </button>
+                        </Link>
                     </div>
                 </ScrollSection>
 
@@ -467,8 +471,8 @@ const LandingPage = () => {
                         <div
                             key={stage}
                             className={`w-3 h-3 rounded-full transition-all duration-300 ${currentStage === stage
-                                    ? 'bg-cyan-400 scale-125 shadow-lg shadow-cyan-400/50'
-                                    : 'bg-gray-600'
+                                ? 'bg-cyan-400 scale-125 shadow-lg shadow-cyan-400/50'
+                                : 'bg-gray-600'
                                 }`}
                         />
                     ))}
