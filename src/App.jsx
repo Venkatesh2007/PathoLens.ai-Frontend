@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import SplashScreen from "./components/SplashScreen";
-import HomePage from "./pages/home";
+import Homepage from "./pages/HomePage";
+// import HomePage from "./pages/home";
 
 export default function App() {
 
@@ -12,7 +13,7 @@ export default function App() {
     <>
           {!loaded && <SplashScreen onFinish={() => setLoaded(true)} />}
 
-   {loaded &&  <HomePage />}
+   {loaded &&  <Homepage />}
     </>
   );
 }
