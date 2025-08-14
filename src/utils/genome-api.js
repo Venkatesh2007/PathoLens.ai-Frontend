@@ -138,7 +138,7 @@ export async function searchGenes(query, genome) {
 
   // Data contains the related gene by giving the ?terms=value
   const data = await response.json();
-  
+
   // Results array
   const results = [];
 
@@ -175,7 +175,7 @@ export async function searchGenes(query, genome) {
 }
 
 
-export async function fetchGeneSequence(chrom,start,end,genomeId){
+export async function fetchGeneSequence(chrom, start, end, genomeId) {
   try {
     const chromosome = chrom.startsWith("chr") ? chrom : `chr${chrom}`;
 
@@ -204,7 +204,7 @@ export async function fetchGeneSequence(chrom,start,end,genomeId){
   }
 }
 
-export async function fetchGeneDetails(geneId){
+export async function fetchGeneDetails(geneId) {
   try {
     const detailUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id=${geneId}&retmode=json`;
     const detailsResponse = await fetch(detailUrl);
@@ -337,16 +337,23 @@ export async function analyzeVariantWithAPI({
   genomeId,
   chromosome,
 }) {
-  const queryParams = new URLSearchParams({
-    variant_position: position.toString(),
+  const body = {
+    variant_position: position,
     alternative: alternative,
     genome: genomeId,
     chromosome: chromosome,
+  };
+
+  const url = `https://venkateshbadamdurga--variant-analysis-evo2-evo2model-ana-ebe097.modal.run?`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
   });
 
-  const url = `${}?${queryParams.toString()}`;
-
-  const response = await fetch(url, { method: "POST" });
 
   if (!response.ok) {
     const errorText = await response.text();
