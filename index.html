@@ -3,10 +3,114 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PathoLens.ai</title>
+    
+    <!-- Primary Meta Tags -->
+    <title>PathoLens.AI - AI-Powered DNA Mutation Analysis & Genomic Research Platform</title>
+    <meta name="title" content="PathoLens.AI - AI-Powered DNA Mutation Analysis & Genomic Research Platform" />
+    <meta name="description" content="Interactive web-based platform for medical students and researchers to explore DNA mutations, analyze genetic variants, and interpret genomic data using AI-driven tools. Supports hg38 genome assembly and SNV analysis." />
+    <meta name="keywords" content="DNA mutation analysis, genomic research platform, AI genomics, genetic variant analysis, SNV analysis, genome assembly hg38, medical genomics education, pathology AI, bioinformatics tool, gene mutation impact" />
+    <meta name="author" content="PathoLens.AI" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://patholens.ai" />
+    
+    <!-- Open Graph / Facebook Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://patholens.ai" />
+    <meta property="og:title" content="PathoLens.AI - AI-Powered DNA Mutation Analysis Platform" />
+    <meta property="og:description" content="Explore and analyze DNA mutations with our interactive AI-driven genomic research platform. Perfect for medical students and researchers." />
+    <meta property="og:image" content="https://patholens.ai/og-image.jpg" />
+    <meta property="og:site_name" content="PathoLens.AI" />
+    
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://patholens.ai" />
+    <meta name="twitter:title" content="PathoLens.AI - AI-Powered DNA Mutation Analysis" />
+    <meta name="twitter:description" content="Interactive platform for exploring DNA mutations and genomic data using AI-driven analysis tools." />
+    <meta name="twitter:image" content="https://patholens.ai/twitter-image.jpg" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    
+    <!-- Structured Data (JSON-LD) for Rich Search Results -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "PathoLens.AI",
+      "applicationCategory": "HealthApplication",
+      "operatingSystem": "Web Browser",
+      "description": "Interactive web-based platform for DNA mutation analysis and genomic research using AI-driven tools. Enables medical students and researchers to explore genetic variants and interpret mutation impacts.",
+      "url": "https://patholens.ai",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Genome Assembly Selection (hg38)",
+        "Gene Selection and Navigation",
+        "Interactive Mutation Introduction",
+        "AI-Driven Impact Analysis",
+        "SNV Analysis Tools",
+        "Visualization and Scoring Tools"
+      ],
+      "audience": {
+        "@type": "Audience",
+        "audienceType": ["Medical Students", "Researchers", "Geneticists", "Bioinformaticians"]
+      }
+    }
+    </script>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "PathoLens.AI",
+      "url": "https://patholens.ai",
+      "description": "AI-powered platform for DNA mutation analysis and genomic research",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://patholens.ai/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    
+    <!-- Preconnect to improve performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="google-site-verification" content="YOUR_GOOGLE_VERIFICATION_CODE" />
+    <meta name="theme-color" content="#4A90E2" />
+    <meta name="format-detection" content="telephone=no" />
   </head>
   <body>
+    <!-- Accessibility: Skip to main content -->
+    <a href="#main-content" class="skip-to-main" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Skip to main content</a>
+    
+    <!-- Main Content -->
     <div id="root"></div>
+    
+    <!-- Noscript fallback for SEO -->
+    <noscript>
+      <div style="padding: 2rem; max-width: 800px; margin: 0 auto; font-family: system-ui, -apple-system, sans-serif;">
+        <h1>PathoLens.AI - AI-Powered DNA Mutation Analysis Platform</h1>
+        <p>PathoLens.AI is an interactive, web-based platform specifically engineered for medical students and researchers to explore, experiment with, and interpret DNA mutations using sophisticated AI-driven analysis.</p>
+        
+        <h2>Key Features</h2>
+        <ul>
+          <li><strong>Genome Assembly Selection:</strong> Choose specific genome assemblies like hg38 for focused genetic analysis</li>
+          <li><strong>Gene Selection:</strong> Easily navigate and select genes from chromosomes for detailed study</li>
+          <li><strong>Mutation Introduction:</strong> Introduce mutations (SNVs) at specific nucleotide positions</li>
+          <li><strong>Impact Analysis:</strong> Visualize and score predicted biological impacts of genetic changes</li>
+        </ul>
+        
+        <p><strong>Note:</strong> This platform requires JavaScript to be enabled for full functionality. Please enable JavaScript in your browser to access PathoLens.AI.</p>
+      </div>
+    </noscript>
+    
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

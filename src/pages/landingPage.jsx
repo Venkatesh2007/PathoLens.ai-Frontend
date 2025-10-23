@@ -431,12 +431,16 @@ const LandingPage = () => {
                             into clear, actionable clinical insights.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                            <Link to="/home">
                             <button className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full text-lg font-semibold hover:shadow-2xl hover:shadow-cyan-500/50 transition-all duration-300 transform hover:scale-105">
                                 Get Started
                             </button>
+                            </Link>
+                            <Link to="/home">
                             <button className="px-8 py-4 border-2 border-cyan-400 rounded-full text-lg font-semibold hover:bg-cyan-400 hover:text-black transition-all duration-300 transform hover:scale-105">
                                 Request Demo
                             </button>
+                            </Link>
                         </div>
                     </div>
                 </ScrollSection>
@@ -453,12 +457,16 @@ const LandingPage = () => {
                             </p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                            <Link to="/home">
                             <button className="cta-button px-10 py-5 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full text-xl font-bold hover:shadow-2xl hover:shadow-cyan-500/50 transition-all duration-300">
                                 Transform Your Practice
                             </button>
+                            </Link>
+                            <Link to="/home">
                             <button className="px-10 py-5 border-2 border-cyan-400 rounded-full text-xl font-bold hover:bg-cyan-400 hover:text-black transition-all duration-300">
                                 See It In Action
                             </button>
+                            </Link>
                         </div>
                     </div>
                 </ScrollSection>
